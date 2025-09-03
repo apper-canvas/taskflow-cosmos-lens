@@ -1,0 +1,23 @@
+[
+  {
+    "Id": 1,
+    "name": "Work Projects",
+    "color": "#5B4CFF",
+    "order": 1,
+    "taskCount": 5
+  },
+  {
+    "Id": 2,
+    "name": "Personal",
+    "color": "#FF6B9D",
+    "order": 2,
+    "taskCount": 2
+  },
+  {
+    "Id": 3,
+    "name": "Shopping",
+    "color": "#FFC75F",
+    "order": 3,
+    "taskCount": 1
+  }
+]
