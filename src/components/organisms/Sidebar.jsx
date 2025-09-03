@@ -1,11 +1,11 @@
 import { NavLink, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
-import Button from "@/components/atoms/Button";
-import Badge from "@/components/atoms/Badge";
-import ApperIcon from "@/components/ApperIcon";
+import React, { useEffect, useState } from "react";
 import { taskListsService } from "@/services/api/taskListsService";
 import { tasksService } from "@/services/api/tasksService";
+import ApperIcon from "@/components/ApperIcon";
+import Badge from "@/components/atoms/Badge";
+import Button from "@/components/atoms/Button";
 
 const Sidebar = ({ isOpen, onClose, className }) => {
   const [lists, setLists] = useState([]);
@@ -18,7 +18,7 @@ const Sidebar = ({ isOpen, onClose, className }) => {
 
   const loadData = async () => {
     try {
-      const [listsData, tasksData] = await Promise.all([
+const [listsData, tasksData] = await Promise.all([
         taskListsService.getAll(),
         tasksService.getAll()
       ]);
@@ -26,26 +26,33 @@ const Sidebar = ({ isOpen, onClose, className }) => {
       setLists(listsData);
       
       // Calculate task counts
-      const counts = {
+const counts = {
         all: tasksData.length,
         today: tasksData.filter(task => {
-          if (!task.dueDate) return false;
+          const dueDate = task.due_date_c || task.dueDate;
+          const completed = task.completed_c !== undefined ? task.completed_c : task.completed;
+          if (!dueDate) return false;
           const today = new Date();
-          const dueDate = new Date(task.dueDate);
-          return dueDate.toDateString() === today.toDateString() && !task.completed;
+          const taskDueDate = new Date(dueDate);
+          return taskDueDate.toDateString() === today.toDateString() && !completed;
         }).length,
         upcoming: tasksData.filter(task => {
-          if (!task.dueDate || task.completed) return false;
+          const dueDate = task.due_date_c || task.dueDate;
+          const completed = task.completed_c !== undefined ? task.completed_c : task.completed;
+          if (!dueDate || completed) return false;
           const today = new Date();
-          const dueDate = new Date(task.dueDate);
-          return dueDate > today;
+          const taskDueDate = new Date(dueDate);
+          return taskDueDate > today;
         }).length,
-        completed: tasksData.filter(task => task.completed).length
+        completed: tasksData.filter(task => task.completed_c !== undefined ? task.completed_c : task.completed).length
       };
       
       // Count tasks per list
-      listsData.forEach(list => {
-        counts[list.Id] = tasksData.filter(task => task.listId === list.Id.toString()).length;
+listsData.forEach(list => {
+        counts[list.Id] = tasksData.filter(task => 
+          (task.list_id_c?.Id || task.list_id_c) === list.Id || 
+          (task.listId && task.listId.toString() === list.Id.toString())
+        ).length;
       });
       
       setTaskCounts(counts);
@@ -150,12 +157,12 @@ const Sidebar = ({ isOpen, onClose, className }) => {
                   }`
                 }
               >
-                <div className="flex items-center gap-3">
+<div className="flex items-center gap-3">
                   <div 
                     className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: list.color }}
+                    style={{ backgroundColor: list.color_c || list.color }}
                   />
-                  <span className="font-medium">{list.name}</span>
+                  <span className="font-medium">{list.name_c || list.name}</span>
                 </div>
                 {taskCounts[list.Id] > 0 && (
                   <Badge 

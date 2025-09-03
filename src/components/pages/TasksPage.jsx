@@ -81,7 +81,7 @@ const TasksPage = () => {
 
   const handleSaveTask = async (taskData) => {
     try {
-      if (editingTask) {
+if (editingTask) {
         await tasksService.update(editingTask.Id, taskData);
         toast.success("Task updated successfully!");
       } else {
@@ -102,10 +102,10 @@ const TasksPage = () => {
       const task = tasks.find(t => t.Id === taskId);
       if (!task) return;
 
+const currentCompleted = task.completed_c !== undefined ? task.completed_c : task.completed;
       const updatedTask = {
-        ...task,
-        completed: !task.completed,
-        completedAt: !task.completed ? new Date().toISOString() : null
+        completed_c: !currentCompleted,
+        completed_at_c: !currentCompleted ? new Date().toISOString() : null
       };
 
       await tasksService.update(taskId, updatedTask);
@@ -145,61 +145,81 @@ const TasksPage = () => {
     let filtered = tasks;
 
     // Filter by list
-    if (listId) {
-      filtered = filtered.filter(task => task.listId === listId);
+if (listId) {
+      filtered = filtered.filter(task => {
+        const taskListId = task.list_id_c?.Id || task.list_id_c || task.listId;
+        return taskListId && taskListId.toString() === listId.toString();
+      });
     }
 
     // Filter by route
     const path = location.pathname;
     if (path === "/today") {
-      filtered = filtered.filter(task => {
-        if (!task.dueDate) return false;
+filtered = filtered.filter(task => {
+        const dueDate = task.due_date_c || task.dueDate;
+        const completed = task.completed_c !== undefined ? task.completed_c : task.completed;
+        if (!dueDate) return false;
         const today = new Date();
-        const dueDate = new Date(task.dueDate);
-        return dueDate.toDateString() === today.toDateString() && !task.completed;
+        const taskDueDate = new Date(dueDate);
+        return taskDueDate.toDateString() === today.toDateString() && !completed;
       });
     } else if (path === "/upcoming") {
-      filtered = filtered.filter(task => {
-        if (!task.dueDate || task.completed) return false;
+filtered = filtered.filter(task => {
+        const dueDate = task.due_date_c || task.dueDate;
+        const completed = task.completed_c !== undefined ? task.completed_c : task.completed;
+        if (!dueDate || completed) return false;
         const today = new Date();
-        const dueDate = new Date(task.dueDate);
-        return dueDate > today;
+        const taskDueDate = new Date(dueDate);
+        return taskDueDate > today;
       });
-    } else if (path === "/completed") {
-      filtered = filtered.filter(task => task.completed);
+} else if (path === "/completed") {
+      filtered = filtered.filter(task => task.completed_c !== undefined ? task.completed_c : task.completed);
     }
 
     // Filter by completion status
-    if (!showCompleted && path !== "/completed") {
-      filtered = filtered.filter(task => !task.completed);
+if (!showCompleted && path !== "/completed") {
+      filtered = filtered.filter(task => {
+        const completed = task.completed_c !== undefined ? task.completed_c : task.completed;
+        return !completed;
+      });
     }
 
     // Filter by search query
-    if (searchQuery) {
-      filtered = filtered.filter(task =>
-        task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
+if (searchQuery) {
+      filtered = filtered.filter(task => {
+        const title = task.title_c || task.title || "";
+        const description = task.description_c || task.description || "";
+        return title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+               description.toLowerCase().includes(searchQuery.toLowerCase());
+      });
     }
 
     // Sort tasks
     filtered.sort((a, b) => {
       switch (sortBy) {
-        case "priority":
+case "priority":
           const priorityOrder = { high: 3, medium: 2, low: 1 };
-          return priorityOrder[b.priority] - priorityOrder[a.priority];
+          const aPriority = a.priority_c || a.priority || 'medium';
+          const bPriority = b.priority_c || b.priority || 'medium';
+          return priorityOrder[bPriority] - priorityOrder[aPriority];
         
-        case "dueDate":
-          if (!a.dueDate && !b.dueDate) return 0;
-          if (!a.dueDate) return 1;
-          if (!b.dueDate) return -1;
-          return new Date(a.dueDate) - new Date(b.dueDate);
+case "dueDate":
+          const aDueDate = a.due_date_c || a.dueDate;
+          const bDueDate = b.due_date_c || b.dueDate;
+          if (!aDueDate && !bDueDate) return 0;
+          if (!aDueDate) return 1;
+          if (!bDueDate) return -1;
+          return new Date(aDueDate) - new Date(bDueDate);
         
-        case "created":
-          return new Date(b.createdAt) - new Date(a.createdAt);
+case "created":
+          const aCreated = a.created_at_c || a.createdAt || a.CreatedOn;
+          const bCreated = b.created_at_c || b.createdAt || b.CreatedOn;
+          return new Date(bCreated) - new Date(aCreated);
         
-        case "alphabetical":
-          return a.title.localeCompare(b.title);
+case "alphabetical":
+          const aTitle = a.title_c || a.title || "";
+          const bTitle = b.title_c || b.title || "";
+          return aTitle.localeCompare(bTitle);
         
         default:
           return 0;
@@ -210,14 +230,14 @@ const TasksPage = () => {
   };
 
   const filteredTasks = getFilteredAndSortedTasks();
-  const completedTasks = tasks.filter(task => task.completed).length;
+const completedTasks = tasks.filter(task => task.completed_c !== undefined ? task.completed_c : task.completed).length;
   
   const getEmptyMessage = () => {
     const path = location.pathname;
     if (path === "/today") return "No tasks due today";
     if (path === "/upcoming") return "No upcoming tasks";
     if (path === "/completed") return "No completed tasks yet";
-    if (listId) return `No tasks in ${currentList?.name || "this list"}`;
+if (listId) return `No tasks in ${currentList?.name_c || currentList?.name || "this list"}`;
     if (searchQuery) return "No tasks match your search";
     return "No tasks found";
   };

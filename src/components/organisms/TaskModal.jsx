@@ -8,29 +8,29 @@ import Textarea from "@/components/atoms/Textarea";
 import ApperIcon from "@/components/ApperIcon";
 
 const TaskModal = ({ isOpen, onClose, onSave, task = null, listId = null }) => {
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    priority: "medium",
-    dueDate: ""
+const [formData, setFormData] = useState({
+    title_c: "",
+    description_c: "",
+    priority_c: "medium",
+    due_date_c: ""
   });
   
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (task) {
-      setFormData({
-        title: task.title || "",
-        description: task.description || "",
-        priority: task.priority || "medium",
-        dueDate: task.dueDate ? format(new Date(task.dueDate), "yyyy-MM-dd") : ""
+setFormData({
+        title_c: task.title_c || task.title || "",
+        description_c: task.description_c || task.description || "",
+        priority_c: task.priority_c || task.priority || "medium",
+        due_date_c: (task.due_date_c || task.dueDate) ? format(new Date(task.due_date_c || task.dueDate), "yyyy-MM-dd") : ""
       });
     } else {
       setFormData({
-        title: "",
-        description: "",
-        priority: "medium",
-        dueDate: ""
+        title_c: "",
+        description_c: "",
+        priority_c: "medium",
+        due_date_c: ""
       });
     }
     setErrors({});
@@ -46,12 +46,12 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, listId = null }) => {
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.title.trim()) {
-      newErrors.title = "Title is required";
+if (!formData.title_c.trim()) {
+      newErrors.title_c = "Title is required";
     }
     
-    if (formData.dueDate && new Date(formData.dueDate) < new Date().setHours(0, 0, 0, 0)) {
-      newErrors.dueDate = "Due date cannot be in the past";
+    if (formData.due_date_c && new Date(formData.due_date_c) < new Date().setHours(0, 0, 0, 0)) {
+      newErrors.due_date_c = "Due date cannot be in the past";
     }
 
     setErrors(newErrors);
@@ -63,10 +63,10 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, listId = null }) => {
     
     if (!validateForm()) return;
 
-    const taskData = {
+const taskData = {
       ...formData,
-      dueDate: formData.dueDate || null,
-      listId: listId || "default"
+      due_date_c: formData.due_date_c || null,
+      list_id_c: listId ? parseInt(listId) : null
     };
 
     onSave(taskData);
@@ -110,25 +110,25 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, listId = null }) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <FormField
               label="Task Title"
-              value={formData.title}
-              onChange={(e) => handleChange("title", e.target.value)}
+value={formData.title_c}
+              onChange={(e) => handleChange("title_c", e.target.value)}
               placeholder="Enter task title..."
-              error={errors.title}
+              error={errors.title_c}
             />
 
             <FormField
               label="Description (Optional)"
               type="textarea"
-              value={formData.description}
-              onChange={(e) => handleChange("description", e.target.value)}
+value={formData.description_c}
+              onChange={(e) => handleChange("description_c", e.target.value)}
               placeholder="Add task description..."
               rows={3}
             />
 
             <FormField label="Priority">
               <select
-                value={formData.priority}
-                onChange={(e) => handleChange("priority", e.target.value)}
+value={formData.priority_c}
+                onChange={(e) => handleChange("priority_c", e.target.value)}
                 className="flex h-10 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
               >
                 <option value="low">Low Priority</option>
@@ -140,9 +140,9 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, listId = null }) => {
             <FormField
               label="Due Date (Optional)"
               type="date"
-              value={formData.dueDate}
-              onChange={(e) => handleChange("dueDate", e.target.value)}
-              error={errors.dueDate}
+value={formData.due_date_c}
+              onChange={(e) => handleChange("due_date_c", e.target.value)}
+              error={errors.due_date_c}
             />
 
             <div className="flex gap-3 pt-4">

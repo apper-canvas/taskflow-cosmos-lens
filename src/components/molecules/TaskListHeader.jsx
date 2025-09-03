@@ -22,7 +22,7 @@ const TaskListHeader = ({
         <div className="flex items-center gap-4">
           <div>
             <h1 className="text-2xl font-bold font-display text-gray-900">
-              {list?.name || "All Tasks"}
+{list?.name_c || list?.name || "All Tasks"}
             </h1>
             <p className="text-gray-600 text-sm mt-1">
               {taskCount} tasks • {completedCount} completed

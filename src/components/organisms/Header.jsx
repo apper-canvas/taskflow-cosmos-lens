@@ -3,7 +3,7 @@ import Button from "@/components/atoms/Button";
 import SearchBar from "@/components/molecules/SearchBar";
 import ApperIcon from "@/components/ApperIcon";
 
-const Header = ({ onMenuClick, onSearch, onAddTask }) => {
+const Header = ({ onMenuClick, onSearch, onAddTask, onLogout }) => {
   return (
     <header className="bg-white border-b border-gray-100 px-4 lg:px-6 py-4">
       <div className="flex items-center gap-4">
@@ -24,7 +24,7 @@ const Header = ({ onMenuClick, onSearch, onAddTask }) => {
           />
         </div>
 
-        <div className="flex items-center gap-2">
+<div className="flex items-center gap-2">
           <Button
             onClick={onAddTask}
             className="flex items-center gap-2 hidden sm:flex"
@@ -39,6 +39,15 @@ const Header = ({ onMenuClick, onSearch, onAddTask }) => {
             className="sm:hidden h-10 w-10"
           >
             <ApperIcon name="Plus" size={18} />
+          </Button>
+          
+          <Button
+            onClick={onLogout}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <ApperIcon name="LogOut" size={16} />
+            <span className="hidden sm:inline">Logout</span>
           </Button>
         </div>
       </div>

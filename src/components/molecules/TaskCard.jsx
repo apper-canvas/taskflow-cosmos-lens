@@ -12,7 +12,9 @@ const TaskCard = ({
   onDelete,
   className 
 }) => {
-  const isOverdue = !task.completed && task.dueDate && new Date(task.dueDate) < new Date();
+const completed = task.completed_c !== undefined ? task.completed_c : task.completed;
+  const dueDate = task.due_date_c || task.dueDate;
+  const isOverdue = !completed && dueDate && new Date(dueDate) < new Date();
   
   return (
     <motion.div
@@ -25,19 +27,19 @@ const TaskCard = ({
     >
       <div className="flex items-start gap-3">
         <Checkbox
-          checked={task.completed}
+checked={completed}
           onChange={() => onToggleComplete(task.Id)}
           className="mt-1"
         />
         
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <h3 className={`font-medium text-gray-900 ${task.completed ? 'line-through text-gray-500' : ''}`}>
-              {task.title}
+<h3 className={`font-medium text-gray-900 ${completed ? 'line-through text-gray-500' : ''}`}>
+              {task.title_c || task.title}
             </h3>
             
             <div className="flex items-center gap-2">
-              <PriorityBadge priority={task.priority} />
+<PriorityBadge priority={task.priority_c || task.priority} />
               
               <div className="flex items-center gap-1">
                 <Button
@@ -61,23 +63,23 @@ const TaskCard = ({
             </div>
           </div>
           
-          {task.description && (
-            <p className={`text-sm text-gray-600 mt-1 ${task.completed ? 'line-through' : ''}`}>
-              {task.description}
+{(task.description_c || task.description) && (
+            <p className={`text-sm text-gray-600 mt-1 ${completed ? 'line-through' : ''}`}>
+              {task.description_c || task.description}
             </p>
           )}
           
-          {task.dueDate && (
+{dueDate && (
             <div className="flex items-center gap-2 mt-2">
               <ApperIcon name="Calendar" size={14} className="text-gray-400" />
               <span className={`text-xs ${
                 isOverdue 
                   ? 'text-red-600 font-medium' 
-                  : task.completed 
+                  : completed 
                     ? 'text-gray-400 line-through' 
                     : 'text-gray-500'
               }`}>
-                {format(new Date(task.dueDate), 'MMM d, yyyy')}
+                {format(new Date(dueDate), 'MMM d, yyyy')}
                 {isOverdue && ' (Overdue)'}
               </span>
             </div>
